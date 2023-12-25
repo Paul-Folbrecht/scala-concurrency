@@ -4,10 +4,13 @@ import zio.*
 import Utils.*
 
 object CpuBound extends ZIOAppDefault {
-  def run = app
-    .catchAll(e => ZIO.debug(s"Error: $e"))
-    .catchAllDefect(e => ZIO.debug(s"Unrecoverable Error: $e"))
-    .time("app")
+  def run = ZIO.foreach(1 to 3)(_ =>
+    // Watch the run times decrease with every iteration due to JVM warmup
+    app
+      .catchAll(e => ZIO.debug(s"Error: $e"))
+      .catchAllDefect(e => ZIO.debug(s"Unrecoverable Error: $e"))
+      .time("app")
+  )
 
   private val app = for {
     lines                                            <- readFile
